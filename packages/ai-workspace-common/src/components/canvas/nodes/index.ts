@@ -3,6 +3,7 @@ import { CanvasNodeType } from '@refly/openapi-schema';
 import { DocumentNode } from './document';
 import { ResourceNode } from './resource';
 import { SkillNode } from './skill';
+import { MediaSkillNode } from './mediaSkill';
 import { ToolNode } from './tool';
 import { SkillResponseNode } from './skill-response';
 import { MemoNode } from './memo/memo';
@@ -17,6 +18,7 @@ import {
   DocumentNodeMeta,
   ResourceNodeMeta,
   SkillNodeMeta,
+  MediaSkillNodeMeta,
   ToolNodeMeta,
   ResponseNodeMeta,
   CodeArtifactNodeMeta,
@@ -28,6 +30,7 @@ import { genUniqueId } from '@refly/utils/id';
 export * from './document';
 export * from './resource';
 export * from './skill';
+export * from './mediaSkill';
 export * from './tool';
 export * from './skill-response';
 export * from './memo/memo';
@@ -41,6 +44,7 @@ export const nodeTypes: NodeTypes = {
   document: DocumentNode,
   resource: ResourceNode,
   skill: SkillNode,
+  mediaSkill: MediaSkillNode,
   tool: ToolNode,
   skillResponse: SkillResponseNode,
   memo: MemoNode,
@@ -130,6 +134,14 @@ export const getNodeDefaultMetadata = (nodeType: CanvasNodeType) => {
         query: '',
         modelInfo: null,
       } as SkillNodeMeta;
+
+    case 'mediaSkill':
+      return {
+        ...baseMetadata,
+        query: '',
+        modelInfo: null,
+        mediaType: 'image',
+      } as MediaSkillNodeMeta;
 
     case 'tool':
       return {

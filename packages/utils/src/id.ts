@@ -29,6 +29,7 @@ export enum IDPrefix {
   PROJECT = 'p-',
   CODE_ARTIFACT = 'ca-',
   MCP_SERVER = 'mcp-',
+  MEDIA_SKILL = 'ms-',
 }
 
 export function genUID(): string {
@@ -109,6 +110,10 @@ export function genProviderItemID(): string {
 
 export function genSkillID(): string {
   return IDPrefix.SKILL + createId();
+}
+
+export function genMediaSkillID(): string {
+  return IDPrefix.MEDIA_SKILL + createId();
 }
 
 export function genSkillTriggerID(): string {
