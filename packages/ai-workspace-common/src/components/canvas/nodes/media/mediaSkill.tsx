@@ -1,11 +1,11 @@
 import { Edge, NodeProps, Position, useReactFlow } from '@xyflow/react';
 import { CanvasNode, CanvasNodeData, MediaSkillNodeMeta } from '@refly/canvas-common';
 import { Node } from '@xyflow/react';
-import { Radio, Typography } from 'antd';
-import { CustomHandle } from './shared/custom-handle';
+import { Typography } from 'antd';
+import { CustomHandle } from '../shared/custom-handle';
 import { useState, useCallback, useEffect, useMemo, memo, useRef } from 'react';
-import { getNodeCommonStyles } from './index';
-import { ModelInfo, SkillRuntimeConfig } from '@refly/openapi-schema';
+import { getNodeCommonStyles } from '../index';
+import { ModelInfo } from '@refly/openapi-schema';
 import { useInvokeAction } from '@refly-packages/ai-workspace-common/hooks/canvas/use-invoke-action';
 import { useCanvasContext } from '@refly-packages/ai-workspace-common/context/canvas';
 import { useChatStoreShallow } from '@refly-packages/ai-workspace-common/stores/chat';
@@ -22,7 +22,7 @@ import { useAddNode } from '@refly-packages/ai-workspace-common/hooks/canvas/use
 import { convertContextItemsToNodeFilters } from '@refly/canvas-common';
 import { useNodeSize } from '@refly-packages/ai-workspace-common/hooks/canvas/use-node-size';
 import { useCanvasStoreShallow } from '@refly-packages/ai-workspace-common/stores/canvas';
-import { NodeResizer as NodeResizerComponent } from './shared/node-resizer';
+import { NodeResizer as NodeResizerComponent } from '../shared/node-resizer';
 import classNames from 'classnames';
 import Moveable from 'react-moveable';
 import { useContextUpdateByEdges } from '@refly-packages/ai-workspace-common/hooks/canvas/use-debounced-context-update';
@@ -32,14 +32,11 @@ import { useAskProject } from '@refly-packages/ai-workspace-common/hooks/canvas/
 import { useContextPanelStore } from '@refly-packages/ai-workspace-common/stores/context-panel';
 import { edgeEventsEmitter } from '@refly-packages/ai-workspace-common/events/edge';
 import { useSelectedNodeZIndex } from '@refly-packages/ai-workspace-common/hooks/canvas/use-selected-node-zIndex';
-import { NodeActionButtons } from './shared/node-action-buttons';
+import { NodeActionButtons } from '../shared/node-action-buttons';
 import { useTranslation } from 'react-i18next';
 import { IconImage } from '@refly-packages/ai-workspace-common/components/common/icon';
-import { HiOutlineFilm, HiOutlineSpeakerWave } from 'react-icons/hi2';
-import { ChatInput } from '@refly-packages/ai-workspace-common/components/canvas/launchpad/chat-input';
+import { MediaChatInput } from './media-input';
 import { ContextManager } from '@refly-packages/ai-workspace-common/components/canvas/launchpad/context-manager';
-import { ChatActions } from '@refly-packages/ai-workspace-common/components/canvas/launchpad/chat-actions';
-import { useUploadImage } from '@refly-packages/ai-workspace-common/hooks/use-upload-image';
 
 const { Text } = Typography;
 
@@ -68,26 +65,6 @@ export const MediaSkillNode = memo(
 
     const { getFinalProjectId } = useAskProject();
 
-    const mediaOptions = useMemo(() => {
-      return [
-        {
-          value: 'image',
-          label: t('canvas.nodes.mediaSkill.image', 'Image'),
-          icon: IconImage,
-        },
-        {
-          value: 'video',
-          label: t('canvas.nodes.mediaSkill.video', 'Video'),
-          icon: HiOutlineFilm,
-        },
-        {
-          value: 'audio',
-          label: t('canvas.nodes.mediaSkill.audio', 'Audio'),
-          icon: HiOutlineSpeakerWave,
-        },
-      ];
-    }, [t]);
-
     const { containerStyle, handleResize, updateSize } = useNodeSize({
       id,
       node,
@@ -111,7 +88,7 @@ export const MediaSkillNode = memo(
     }, [containerStyle]);
 
     const { metadata = {} } = data;
-    const { query, modelInfo, contextItems = [], mediaType = 'image', runtimeConfig } = metadata;
+    const { query, modelInfo, contextItems = [], mediaType = 'image' } = metadata;
 
     const [localQuery, setLocalQuery] = useState(query);
 
@@ -131,7 +108,7 @@ export const MediaSkillNode = memo(
       setSkillSelectedModel: state.setSkillSelectedModel,
     }));
 
-    const { invokeAction, abortAction } = useInvokeAction();
+    const { invokeAction } = useInvokeAction();
 
     const setQuery = useCallback(
       (query: string) => {
@@ -186,13 +163,6 @@ export const MediaSkillNode = memo(
       [id, setNodeData, addEdges, getNodes, getEdges, deleteElements, edgeStyles.hover],
     );
 
-    const setRuntimeConfig = useCallback(
-      (runtimeConfig: SkillRuntimeConfig) => {
-        setNodeData(id, { metadata: { runtimeConfig } });
-      },
-      [id, setNodeData],
-    );
-
     const setMediaType = useCallback(
       (mediaType: 'image' | 'video' | 'audio') => {
         setNodeData(id, { metadata: { mediaType } });
@@ -236,41 +206,6 @@ export const MediaSkillNode = memo(
       setIsHovered(false);
       onHoverEnd();
     }, [onHoverEnd]);
-
-    const { handleUploadImage, handleUploadMultipleImages } = useUploadImage();
-
-    const handleImageUpload = useCallback(
-      async (file: File) => {
-        const nodeData = await handleUploadImage(file, canvasId);
-        if (nodeData) {
-          const newContextItems = [
-            ...(contextItems ?? []),
-            {
-              type: 'image' as const,
-              ...nodeData,
-            },
-          ];
-          setContextItems(newContextItems as IContextItem[]);
-        }
-      },
-      [contextItems, handleUploadImage, setContextItems, canvasId],
-    );
-
-    const handleMultipleImagesUpload = useCallback(
-      async (files: File[]) => {
-        if (handleUploadMultipleImages) {
-          const nodesData = await handleUploadMultipleImages(files, canvasId);
-          if (nodesData?.length) {
-            const newContextItems = nodesData.map((nodeData) => ({
-              type: 'image' as const,
-              ...nodeData,
-            }));
-            setContextItems([...contextItems, ...newContextItems]);
-          }
-        }
-      },
-      [contextItems, handleUploadMultipleImages, setContextItems, canvasId],
-    );
 
     const handleSendMessage = useCallback(() => {
       const node = getNode(id);
@@ -439,7 +374,7 @@ export const MediaSkillNode = memo(
 
               <ContextManager contextItems={contextItems} setContextItems={setContextItems} />
 
-              <ChatInput
+              <MediaChatInput
                 readonly={readonly}
                 query={localQuery || ''}
                 setQuery={(value) => {
@@ -448,46 +383,10 @@ export const MediaSkillNode = memo(
                     setTimeout(() => updateSize({ height: 'auto' }), 0);
                   }
                 }}
-                placeholder={t('canvas.nodes.mediaSkill.prompt')}
-                selectedSkillName={null}
-                inputClassName="px-3 py-2 min-h-[40px]"
-                maxRows={8}
-                handleSendMessage={handleSendMessage}
-                onUploadImage={handleImageUpload}
-                onUploadMultipleImages={handleMultipleImagesUpload}
-              />
-
-              <Radio.Group
-                value={mediaType}
-                onChange={(e) => setMediaType(e.target.value)}
-                className="flex gap-4"
-              >
-                {mediaOptions.map((option) => {
-                  const Icon = option.icon;
-                  return (
-                    <Radio.Button
-                      key={option.value}
-                      value={option.value}
-                      className="flex items-center gap-2 px-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-green-300 dark:hover:border-green-400 transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Icon className="w-4 h-4" />
-                        <span className="text-sm">{option.label}</span>
-                      </div>
-                    </Radio.Button>
-                  );
-                })}
-              </Radio.Group>
-
-              <ChatActions
-                query={localQuery || ''}
-                model={modelInfo}
-                setModel={setModelInfo}
-                runtimeConfig={runtimeConfig || {}}
-                setRuntimeConfig={setRuntimeConfig}
-                handleSendMessage={handleSendMessage}
-                handleAbort={abortAction}
-                contextItems={contextItems}
+                mediaType={mediaType}
+                setMediaType={setMediaType}
+                nodeId={id}
+                // onSend={handleSendMessage}
               />
             </div>
           </div>

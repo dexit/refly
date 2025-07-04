@@ -259,6 +259,9 @@ export const SkillNode = memo(
       const { runtimeConfig: contextRuntimeConfig } = useContextPanelStore.getState();
       const finalProjectId = getFinalProjectId(projectId);
 
+      console.log('contextRuntimeConfig', contextItems);
+      // return;
+
       deleteElements({ nodes: [node] });
 
       setTimeout(() => {

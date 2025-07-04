@@ -30,6 +30,9 @@ export enum IDPrefix {
   CODE_ARTIFACT = 'ca-',
   MCP_SERVER = 'mcp-',
   MEDIA_SKILL = 'ms-',
+  VIDEO = 'v-',
+  AUDIO = 'a-',
+  MEDIA_SKILL_RESPONSE = 'msr-',
 }
 
 export function genUID(): string {
@@ -86,6 +89,18 @@ export function genMemoID(): string {
 
 export function genImageID(): string {
   return IDPrefix.IMAGE + createId();
+}
+
+export function genVideoID(): string {
+  return IDPrefix.VIDEO + createId();
+}
+
+export function genAudioID(): string {
+  return IDPrefix.AUDIO + createId();
+}
+
+export function genMediaSkillResponseID(): string {
+  return IDPrefix.MEDIA_SKILL_RESPONSE + createId();
 }
 
 export function genReferenceID(): string {

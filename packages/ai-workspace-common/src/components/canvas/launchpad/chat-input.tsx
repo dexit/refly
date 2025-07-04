@@ -15,7 +15,6 @@ const TextArea = Input.TextArea;
 interface ChatInputProps {
   readonly: boolean;
   query: string;
-  placeholder?: string;
   setQuery: (text: string) => void;
   selectedSkillName: string | null;
   inputClassName?: string;
@@ -34,7 +33,6 @@ const ChatInputComponent = forwardRef<HTMLDivElement, ChatInputProps>(
     {
       readonly,
       query,
-      placeholder,
       setQuery,
       selectedSkillName,
       inputClassName,
@@ -417,7 +415,7 @@ const ChatInputComponent = forwardRef<HTMLDivElement, ChatInputProps>(
               readonly && 'cursor-not-allowed !text-black !bg-transparent',
               'dark:hover:bg-transparent dark:hover:!bg-none dark:focus:bg-transparent dark:active:bg-transparent dark:bg-transparent dark:!bg-transparent',
             )}
-            placeholder={placeholder || getPlaceholder(selectedSkillName)}
+            placeholder={getPlaceholder(selectedSkillName)}
             autoSize={{
               minRows: minRows ?? 1,
               maxRows: maxRows ?? 6,

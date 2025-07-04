@@ -4578,10 +4578,10 @@ export type CanvasNodeType =
   | 'memo'
   | 'group'
   | 'image'
-  | 'mediaSkill'
-  | 'mediaSkillResponse'
   | 'video'
-  | 'audio';
+  | 'audio'
+  | 'mediaSkill'
+  | 'mediaSkillResponse';
 
 export type CanvasNodeData = {
   /**
