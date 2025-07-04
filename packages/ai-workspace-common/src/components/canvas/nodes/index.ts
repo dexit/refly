@@ -4,6 +4,7 @@ import { DocumentNode } from './document';
 import { ResourceNode } from './resource';
 import { SkillNode } from './skill';
 import { MediaSkillNode } from './media/mediaSkill';
+import { MediaSkillResponseNode } from './media/media-skill-response';
 import { ToolNode } from './tool';
 import { SkillResponseNode } from './skill-response';
 import { MemoNode } from './memo/memo';
@@ -33,6 +34,7 @@ export * from './document';
 export * from './resource';
 export * from './skill';
 export * from './media/mediaSkill';
+export * from './media/media-skill-response';
 export * from './tool';
 export * from './skill-response';
 export * from './memo/memo';
@@ -49,6 +51,7 @@ export const nodeTypes: NodeTypes = {
   resource: ResourceNode,
   skill: SkillNode,
   mediaSkill: MediaSkillNode,
+  mediaSkillResponse: MediaSkillResponseNode,
   tool: ToolNode,
   skillResponse: SkillResponseNode,
   memo: MemoNode,
@@ -163,6 +166,17 @@ export const getNodeDefaultMetadata = (nodeType: CanvasNodeType) => {
         ...baseMetadata,
         status: 'waiting',
         version: 0,
+      } as ResponseNodeMeta;
+
+    case 'mediaSkillResponse':
+      return {
+        ...baseMetadata,
+        status: 'waiting',
+        version: 0,
+        mediaType: 'image',
+        prompt: '',
+        model: '',
+        resultId: '',
       } as ResponseNodeMeta;
 
     case 'toolResponse':

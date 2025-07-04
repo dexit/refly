@@ -308,15 +308,13 @@ export const AudioNode = memo(
 
               <div className="flex flex-col h-full p-4 gap-3 justify-center">
                 {showTitle && (
-                  <div className="flex items-center">
-                    <NodeHeader
-                      title={data.title}
-                      Icon={HiOutlineSpeakerWave}
-                      iconBgColor="#4ECDC4"
-                      canEdit={!readonly}
-                      updateTitle={onTitleChange}
-                    />
-                  </div>
+                  <NodeHeader
+                    title={data.title}
+                    Icon={HiOutlineSpeakerWave}
+                    iconBgColor="#4ECDC4"
+                    canEdit={!readonly}
+                    updateTitle={onTitleChange}
+                  />
                 )}
 
                 {/* Audio Player or Error Message */}

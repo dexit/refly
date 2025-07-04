@@ -145,6 +145,7 @@ const translations = {
     update: '更新',
     validate: '验证',
     refresh: '刷新',
+    generating: '生成中...',
   },
   mode: {
     ask: '提问',
@@ -1262,12 +1263,16 @@ const translations = {
       mediaSkill: {
         prompt: '请输入生成内容',
         mediaType: '媒体类型',
-        imageGenerate: '生成图片',
         image: '图片',
         video: '视频',
         audio: '音频',
+        imageGenerate: '生成图片',
         videoGenerate: '生成视频',
         audioGenerate: '生成音频',
+        imagePlaceholder: '描述你想要生成的图片...',
+        videoPlaceholder: '描述你想要生成的视频...',
+        audioPlaceholder: '描述你想要生成的音频...',
+        defaultPlaceholder: '描述你想要生成的内容...',
       },
     },
     reflyPilot: {

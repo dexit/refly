@@ -6,7 +6,6 @@ import { CustomHandle } from '../shared/custom-handle';
 import { useState, useCallback, useEffect, useMemo, memo, useRef } from 'react';
 import { getNodeCommonStyles } from '../index';
 import { ModelInfo } from '@refly/openapi-schema';
-import { useInvokeAction } from '@refly-packages/ai-workspace-common/hooks/canvas/use-invoke-action';
 import { useCanvasContext } from '@refly-packages/ai-workspace-common/context/canvas';
 import { useChatStoreShallow } from '@refly-packages/ai-workspace-common/stores/chat';
 import { useCanvasData } from '@refly-packages/ai-workspace-common/hooks/canvas/use-canvas-data';
@@ -17,9 +16,7 @@ import { createNodeEventName } from '@refly-packages/ai-workspace-common/events/
 import { useDeleteNode } from '@refly-packages/ai-workspace-common/hooks/canvas/use-delete-node';
 import { IContextItem } from '@refly/common-types';
 import { useEdgeStyles } from '@refly-packages/ai-workspace-common/components/canvas/constants';
-import { genActionResultID, genUniqueId } from '@refly/utils/id';
-import { useAddNode } from '@refly-packages/ai-workspace-common/hooks/canvas/use-add-node';
-import { convertContextItemsToNodeFilters } from '@refly/canvas-common';
+import { genUniqueId } from '@refly/utils/id';
 import { useNodeSize } from '@refly-packages/ai-workspace-common/hooks/canvas/use-node-size';
 import { useCanvasStoreShallow } from '@refly-packages/ai-workspace-common/stores/canvas';
 import { NodeResizer as NodeResizerComponent } from '../shared/node-resizer';
@@ -28,8 +25,6 @@ import Moveable from 'react-moveable';
 import { useContextUpdateByEdges } from '@refly-packages/ai-workspace-common/hooks/canvas/use-debounced-context-update';
 import { useNodeData } from '@refly-packages/ai-workspace-common/hooks/canvas';
 import { useDebouncedCallback } from 'use-debounce';
-import { useAskProject } from '@refly-packages/ai-workspace-common/hooks/canvas/use-ask-project';
-import { useContextPanelStore } from '@refly-packages/ai-workspace-common/stores/context-panel';
 import { edgeEventsEmitter } from '@refly-packages/ai-workspace-common/events/edge';
 import { useSelectedNodeZIndex } from '@refly-packages/ai-workspace-common/hooks/canvas/use-selected-node-zIndex';
 import { NodeActionButtons } from '../shared/node-action-buttons';
@@ -50,7 +45,6 @@ export const MediaSkillNode = memo(
     const { setNodeData } = useNodeData();
     const edgeStyles = useEdgeStyles();
     const { getNode, getNodes, getEdges, addEdges, deleteElements } = useReactFlow();
-    const { addNode } = useAddNode();
     const { deleteNode } = useDeleteNode();
     useSelectedNodeZIndex(id, selected);
 
@@ -61,9 +55,7 @@ export const MediaSkillNode = memo(
     }));
     const isOperating = operatingNodeId === id;
     const node = useMemo(() => getNode(id), [id, getNode]);
-    const { canvasId, readonly } = useCanvasContext();
-
-    const { getFinalProjectId } = useAskProject();
+    const { readonly } = useCanvasContext();
 
     const { containerStyle, handleResize, updateSize } = useNodeSize({
       id,
@@ -72,8 +64,8 @@ export const MediaSkillNode = memo(
       isOperating,
       minWidth: 100,
       maxWidth: 800,
-      minHeight: 200,
-      defaultWidth: 384,
+      minHeight: 150,
+      defaultWidth: 400,
       defaultHeight: 'auto',
     });
 
@@ -107,8 +99,6 @@ export const MediaSkillNode = memo(
       skillSelectedModel: state.skillSelectedModel,
       setSkillSelectedModel: state.setSkillSelectedModel,
     }));
-
-    const { invokeAction } = useInvokeAction();
 
     const setQuery = useCallback(
       (query: string) => {
@@ -207,71 +197,6 @@ export const MediaSkillNode = memo(
       onHoverEnd();
     }, [onHoverEnd]);
 
-    const handleSendMessage = useCallback(() => {
-      const node = getNode(id);
-      const data = node?.data as CanvasNodeData<MediaSkillNodeMeta>;
-      const {
-        query = '',
-        contextItems = [],
-        modelInfo,
-        mediaType = 'image',
-        runtimeConfig = {},
-        projectId,
-      } = data?.metadata ?? {};
-      const { runtimeConfig: contextRuntimeConfig } = useContextPanelStore.getState();
-      const finalProjectId = getFinalProjectId(projectId);
-
-      deleteElements({ nodes: [node] });
-
-      setTimeout(() => {
-        const resultId = genActionResultID();
-        invokeAction(
-          {
-            resultId,
-            query,
-            contextItems,
-            modelInfo,
-            runtimeConfig: {
-              ...contextRuntimeConfig,
-              ...runtimeConfig,
-              mediaType, // Include mediaType in runtimeConfig instead
-            },
-            projectId: finalProjectId,
-          } as any,
-          {
-            entityId: canvasId,
-            entityType: 'canvas',
-          },
-        );
-        addNode(
-          {
-            type: 'mediaSkillResponse',
-            data: {
-              title: query,
-              entityId: resultId,
-              metadata: {
-                status: 'executing',
-                contextItems,
-                modelInfo,
-                mediaType,
-                runtimeConfig: {
-                  ...contextRuntimeConfig,
-                  ...runtimeConfig,
-                },
-                structuredData: {
-                  query,
-                  mediaType,
-                },
-                projectId: finalProjectId,
-              },
-            },
-            position: node.position,
-          },
-          convertContextItemsToNodeFilters(contextItems),
-        );
-      });
-    }, [id, getNode, deleteElements, invokeAction, canvasId, addNode, getFinalProjectId]);
-
     const handleDelete = useCallback(() => {
       const currentNode = getNode(id);
       deleteNode({
@@ -283,18 +208,15 @@ export const MediaSkillNode = memo(
     }, [id, data, getNode, deleteNode]);
 
     useEffect(() => {
-      const handleNodeRun = () => handleSendMessage();
       const handleNodeDelete = () => handleDelete();
 
-      nodeActionEmitter.on(createNodeEventName(id, 'run'), handleNodeRun);
       nodeActionEmitter.on(createNodeEventName(id, 'delete'), handleNodeDelete);
 
       return () => {
-        nodeActionEmitter.off(createNodeEventName(id, 'run'), handleNodeRun);
         nodeActionEmitter.off(createNodeEventName(id, 'delete'), handleNodeDelete);
         cleanupNodeEvents(id);
       };
-    }, [id, handleSendMessage, handleDelete]);
+    }, [id, handleDelete]);
 
     // Use the new custom hook instead of the local implementation
     const { debouncedUpdateContextItems } = useContextUpdateByEdges({
@@ -372,7 +294,10 @@ export const MediaSkillNode = memo(
                 </Text>
               </div>
 
-              <ContextManager contextItems={contextItems} setContextItems={setContextItems} />
+              {/* TODO: add context manager */}
+              {false && (
+                <ContextManager contextItems={contextItems} setContextItems={setContextItems} />
+              )}
 
               <MediaChatInput
                 readonly={readonly}
@@ -386,7 +311,6 @@ export const MediaSkillNode = memo(
                 mediaType={mediaType}
                 setMediaType={setMediaType}
                 nodeId={id}
-                // onSend={handleSendMessage}
               />
             </div>
           </div>

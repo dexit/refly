@@ -270,16 +270,12 @@ export const VideoNode = memo(
                 {showTitle && (
                   <div
                     className={cn(
-                      'absolute top-0 left-0 right-0 z-10 rounded-t-lg px-1 transition-opacity duration-200',
+                      'absolute top-0 left-0 right-0 z-10 rounded-t-lg px-1 py-1 transition-opacity duration-200 bg-gray-100 dark:bg-black',
                       {
                         'opacity-100': selected || isHovered,
                         'opacity-0': !selected && !isHovered,
                       },
                     )}
-                    style={{
-                      textShadow: '0px 0px 3px #ffffff',
-                      backgroundColor: 'transparent',
-                    }}
                   >
                     <NodeHeader
                       title={data.title}

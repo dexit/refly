@@ -137,6 +137,7 @@ const translations = {
     update: 'Update',
     validate: 'Validate',
     refresh: 'Refresh',
+    generating: 'Generating...',
   },
   mode: {
     ask: 'Ask',
@@ -1462,6 +1463,10 @@ const translations = {
         imageGenerate: 'Generate Image',
         videoGenerate: 'Generate Video',
         audioGenerate: 'Generate Audio',
+        imagePlaceholder: 'Describe the image you want to generate...',
+        videoPlaceholder: 'Describe the video you want to generate...',
+        audioPlaceholder: 'Describe the audio you want to generate...',
+        defaultPlaceholder: 'Describe what you want to generate...',
       },
     },
     reflyPilot: {

@@ -179,7 +179,6 @@ export const NodeActionButtons: FC<NodeActionButtonsProps> = memo(
           break;
 
         case 'skill':
-        case 'mediaSkill':
           buttons.push({
             key: 'run',
             icon: IconRun,
@@ -278,7 +277,7 @@ export const NodeActionButtons: FC<NodeActionButtonsProps> = memo(
           </Tooltip>
         ))}
 
-        {!['skill', 'mediaSkill'].includes(nodeType) && (
+        {!['skill', 'mediaSkill', 'video', 'audio', 'image'].includes(nodeType) && (
           <Tooltip title={t('canvas.nodeActions.more')} placement="top">
             <Button
               type="text"
